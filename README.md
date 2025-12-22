@@ -1,6 +1,3 @@
-当然可以！下面是一个 **正式且专业的英文版 `README.md`**，适合放在你个人作品 **mixed-mixology** 的 GitHub 仓库主页上。它清楚地介绍了项目的目的、功能、安装方法和使用方式，符合 GitHub README 的最佳实践。([GitHub][1])
-
-你可以 **直接复制粘贴到你的仓库根目录的 `README.md` 文件里**：
 
 ---
 
@@ -124,9 +121,6 @@ Created by **JY0xLU** — an innovative developer passionate about creative inte
 
 ---
 
-如果你需要 **加入徽章（badges）**、**示例截图**、或者 **英文 + 中文双语版本**，我也可以帮你补充 💪😊
-::contentReference[oaicite:1]{index=1}
-```
 
-[1]: https://github.com/banesullivan/README?utm_source=chatgpt.com "How to write a good README"
+
 
