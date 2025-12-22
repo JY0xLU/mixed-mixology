@@ -1,0 +1,7 @@
+{
+  "name": "Mood Mixology",
+  "description": "An emotional bartender app that analyzes your mood to create bespoke abstract cocktail recipes.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
