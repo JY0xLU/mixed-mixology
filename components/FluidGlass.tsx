@@ -9,7 +9,7 @@ interface FluidGlassProps {
 const FluidGlass: React.FC<FluidGlassProps> = ({ moodValue, intensity, isAnalyzing }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const timeRef = useRef(0);
-  const requestRef = useRef<number>();
+  const requestRef = useRef<number | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;

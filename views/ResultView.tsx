@@ -1,36 +1,101 @@
 import React from 'react';
-import { AppState, MoodCocktail } from '../types';
+import { AppState, MoodCocktail, Language } from '../types';
+import { getTranslation } from '../utils/translations';
 
 interface ResultViewProps {
   cocktail: MoodCocktail | null;
   setAppState: (state: AppState) => void;
+  language: Language;
+  toggleLanguage: () => void;
+  onBack: () => void;
+  isTranslating: boolean;
 }
 
-const ResultView: React.FC<ResultViewProps> = ({ cocktail, setAppState }) => {
-  if (!cocktail) return <div className="text-white">No Drink Found</div>;
+const ResultView: React.FC<ResultViewProps> = ({ cocktail, setAppState, language, toggleLanguage, onBack, isTranslating }) => {
+  const t = getTranslation(language);
+  
+  // Translation map for ingredient parts
+  const partMap: Record<string, { en: string; zh: string }> = {
+    "Base": { en: "BASE", zh: "基酒" },
+    "Middle": { en: "MIDDLE", zh: "中调" },
+    "Top": { en: "TOP", zh: "前调" },
+    "Finish": { en: "FINISH", zh: "尾韵" }
+  };
+
+  // Helper to normalize backend data to standard keys
+  const normalizePart = (p: string): string => {
+    if (!p) return 'Base';
+    const raw = p.trim();
+    
+    // Check for Chinese direct values
+    if (raw === '基酒') return 'Base';
+    if (raw === '中调') return 'Middle';
+    if (raw === '前调') return 'Top';
+    if (raw === '尾韵') return 'Finish';
+    
+    // Check for Case insensitive English
+    const lower = raw.toLowerCase();
+    if (lower === 'base') return 'Base';
+    if (lower === 'middle') return 'Middle';
+    if (lower === 'top') return 'Top';
+    if (lower === 'finish') return 'Finish';
+    
+    // Default fallback
+    return 'Base';
+  };
+
+  const getPartLabel = (part: string) => {
+    const standardKey = normalizePart(part);
+    const entry = partMap[standardKey];
+    return entry ? entry[language] : part.toUpperCase();
+  };
+  
+  if (!cocktail) return <div className="text-white">{t.noDrink}</div>;
 
   return (
-    <div className="flex flex-col h-full w-full overflow-y-auto bg-slate-900 pb-10">
+    <div className="flex flex-col h-full w-full overflow-y-auto bg-slate-900 pb-10 relative">
       
       {/* Header / Navigation */}
-      <div className="w-full p-4 flex justify-between items-center z-20">
-        <button onClick={() => setAppState(AppState.IDLE)} className="text-slate-400 hover:text-white transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-        <span className="text-xs uppercase tracking-[0.2em] text-slate-500">Your Signature Blend</span>
-        <div className="w-6" /> 
+      <div className="w-full p-4 flex justify-between items-center z-20 sticky top-0 bg-slate-900/80 backdrop-blur-sm">
+        <div className="flex items-center">
+            <button onClick={onBack} className="text-slate-400 hover:text-white transition-colors p-2 -ml-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            </button>
+        </div>
+        
+        <span className="text-xs uppercase tracking-[0.2em] text-slate-500 absolute left-1/2 transform -translate-x-1/2">{t.signatureBlend}</span>
+        
+        <div>
+            <button 
+             onClick={toggleLanguage}
+             className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-serif text-slate-300 hover:text-white border border-white/5 transition-all"
+             title={language === 'en' ? "Switch to Chinese" : "Switch to English"}
+           >
+             {/* Show Current Language */}
+             {language === 'en' ? 'EN' : '中'}
+           </button>
+        </div> 
       </div>
 
-      {/* 🟣 Title */}
-      <div className="text-center px-6 mt-4 mb-8">
-        <h1 className="font-serif text-3xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-br from-white via-slate-200 to-slate-400 mb-2 leading-tight">
-          {cocktail.name}
-        </h1>
-        <p className="font-sans text-sm text-slate-400 font-light italic opacity-80">
-          {cocktail.description}
-        </p>
+      {/* 🟣 Title Area with Skeleton Loading */}
+      <div className="text-center px-6 mt-4 mb-8 min-h-[100px] flex flex-col items-center justify-center">
+        {isTranslating ? (
+           <div className="flex flex-col items-center gap-3 w-full animate-pulse">
+             <div className="h-8 w-3/4 bg-white/10 rounded-lg" />
+             <div className="h-4 w-5/6 bg-white/5 rounded-lg" />
+           </div>
+        ) : (
+           <>
+            <h1 className="font-serif text-3xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-br from-white via-slate-200 to-slate-400 mb-2 leading-tight animate-fadeIn">
+              {cocktail.name}
+            </h1>
+            <p className="font-sans text-sm text-slate-400 font-light italic opacity-80 animate-fadeIn">
+              {cocktail.description}
+            </p>
+           </>
+        )}
       </div>
 
       {/* 🟢 Visual Abstract Bottle */}
@@ -64,29 +129,41 @@ const ResultView: React.FC<ResultViewProps> = ({ cocktail, setAppState }) => {
       <div className="px-6 w-full max-w-md mx-auto">
         <div className="bg-slate-800/40 backdrop-blur-md rounded-2xl border border-white/5 p-6 shadow-xl">
           <div className="flex justify-between items-end mb-4 border-b border-white/5 pb-2">
-            <h3 className="font-serif text-xl text-white">Mood Composition</h3>
+            <h3 className="font-serif text-xl text-white">{t.moodComposition}</h3>
             <span className="text-xs font-mono text-slate-400">
-              Intensity: {Math.round(cocktail.intensity * 100)}%
+              {t.intensity}: {Math.round(cocktail.intensity * 100)}%
             </span>
           </div>
 
           <div className="space-y-4">
             {cocktail.ingredients.map((ing, idx) => (
-              <div key={idx} className="flex flex-col animate-fadeIn" style={{ animationDelay: `${idx * 150}ms` }}>
+              <div key={idx} className="flex flex-col" style={{ animationDelay: `${idx * 150}ms` }}>
                 <div className="flex justify-between items-baseline">
-                  <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">{ing.part}</span>
-                  <span className="text-sm font-serif text-white">{ing.name}</span>
+                  <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">{getPartLabel(ing.part)}</span>
+                  {isTranslating ? (
+                     <div className="h-4 w-24 bg-white/10 rounded animate-pulse" />
+                  ) : (
+                     <span className="text-sm font-serif text-white animate-fadeIn">{ing.name}</span>
+                  )}
                 </div>
-                <p className="text-xs text-slate-400 mt-1 font-light leading-relaxed">
-                  {ing.reason}
-                </p>
+                {isTranslating ? (
+                    <div className="h-3 w-full bg-white/5 rounded animate-pulse mt-2" />
+                ) : (
+                    <p className="text-xs text-slate-400 mt-1 font-light leading-relaxed animate-fadeIn">
+                      {ing.reason}
+                    </p>
+                )}
               </div>
             ))}
           </div>
 
           <div className="mt-6 pt-4 border-t border-white/5 flex justify-between items-center">
-             <span className="text-xs text-slate-500 uppercase tracking-widest">Sensation</span>
-             <span className="text-sm font-semibold text-slate-200">{cocktail.sensation}</span>
+             <span className="text-xs text-slate-500 uppercase tracking-widest">{t.sensation}</span>
+             {isTranslating ? (
+                <div className="h-4 w-20 bg-white/10 rounded animate-pulse" />
+             ) : (
+                <span className="text-sm font-semibold text-slate-200 animate-fadeIn">{cocktail.sensation}</span>
+             )}
           </div>
         </div>
       </div>
@@ -97,13 +174,13 @@ const ResultView: React.FC<ResultViewProps> = ({ cocktail, setAppState }) => {
           onClick={() => setAppState(AppState.HISTORY)}
           className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm font-medium transition-all"
         >
-          Save to Collection
+          {t.saveCollection}
         </button>
         <button 
           onClick={() => setAppState(AppState.IDLE)}
           className="w-full py-3 bg-gradient-to-r from-purple-700 to-indigo-700 rounded-xl text-sm font-semibold shadow-lg shadow-purple-900/20 hover:shadow-purple-900/40 transition-all"
         >
-          Mix Another
+          {t.mixAnother}
         </button>
       </div>
 

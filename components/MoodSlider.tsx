@@ -10,11 +10,7 @@ const MoodSlider: React.FC<MoodSliderProps> = ({ value, label }) => {
   const percentage = ((value + 1) / 2) * 100;
 
   return (
-    <div className="w-full max-w-md px-6 py-4">
-      <div className="flex justify-between text-xs text-slate-400 mb-2 font-medium tracking-widest uppercase">
-        <span>Deep / Negative</span>
-        <span>Bright / Positive</span>
-      </div>
+    <div className="w-full">
       <div className="relative h-2 bg-slate-800 rounded-full overflow-hidden">
         {/* Gradient Background */}
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-900 via-slate-700 to-yellow-700 opacity-50" />
@@ -25,9 +21,11 @@ const MoodSlider: React.FC<MoodSliderProps> = ({ value, label }) => {
             style={{ left: `calc(${percentage}% - 8px)` }}
         />
       </div>
-      <div className="text-center mt-3">
-        <span className="text-xs text-slate-300 animate-pulse">{label}</span>
-      </div>
+      {label && (
+        <div className="text-center mt-3">
+            <span className="text-xs text-slate-300 animate-pulse">{label}</span>
+        </div>
+      )}
     </div>
   );
 };

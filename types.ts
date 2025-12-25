@@ -6,6 +6,8 @@ export enum AppState {
   HISTORY = 'HISTORY'
 }
 
+export type Language = 'en' | 'zh';
+
 export interface Ingredient {
   name: string;
   reason: string; // "From your anxiety"
@@ -23,6 +25,13 @@ export interface MoodCocktail {
   sensation: string; // "Tight", "Flowing", "Heavy"
   ingredients: Ingredient[];
   createdAt: number;
+}
+
+export interface PeriodSummary {
+  summaryText: string;
+  dominantMood: string;
+  suggestedDrinkName: string;
+  suggestedDrinkDescription: string;
 }
 
 export interface AnalysisState {
