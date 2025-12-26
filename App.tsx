@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import MixingView from './views/MixingView';
 import ResultView from './views/ResultView';
 import HistoryView from './views/HistoryView';
@@ -12,6 +12,12 @@ const App: React.FC = () => {
   const [language, setLanguage] = useState<Language>('en');
   const [isLangSwitching, setIsLangSwitching] = useState(false);
   const [isTranslatingContent, setIsTranslatingContent] = useState(false);
+
+  // --- Cache System ---
+  // Stores cocktail data keys by "ID-LANGUAGE" (e.g., "123456-en": { ...data })
+  const cocktailCache = useRef<Record<string, MoodCocktail>>({});
+
+  const getCacheKey = (id: string, lang: Language) => `${id}-${lang}`;
   
   // Initialize history from LocalStorage
   const [history, setHistory] = useState<MoodCocktail[]>(() => {
@@ -36,14 +42,36 @@ const App: React.FC = () => {
   const handleMixComplete = (cocktail: MoodCocktail) => {
     setLastCocktail(cocktail);
     addToHistory(cocktail);
+    
+    // Seed the cache with this initial generation
+    const key = getCacheKey(cocktail.id, language);
+    cocktailCache.current[key] = cocktail;
+
     // When mix completes, we go to result. Back should go to IDLE (mixing).
     setPreviousAppState(AppState.IDLE);
     setAppState(AppState.RESULT);
   };
 
   const handleHistorySelect = (cocktail: MoodCocktail) => {
-    setLastCocktail(cocktail);
-    // When selecting from history, Back should return to HISTORY.
+    // When selecting from history, check if we have a version in the CURRENT language
+    const key = getCacheKey(cocktail.id, language);
+    
+    if (cocktailCache.current[key]) {
+        // Cache hit! Use the correct language version
+        setLastCocktail(cocktailCache.current[key]);
+    } else {
+        // Cache miss (or first load). 
+        // If the cocktail's stored language matches current app language, use it.
+        // Otherwise, we might need to translate it, but for now we load what we have.
+        setLastCocktail(cocktail);
+        
+        // If languages mismatch, we could trigger auto-translate here, 
+        // but let's let the user decide to toggle if they want.
+        // Seeding the cache with what we have:
+        const inferredLang = cocktail.language || 'en'; // Default to en for legacy data
+        cocktailCache.current[getCacheKey(cocktail.id, inferredLang)] = cocktail;
+    }
+
     setPreviousAppState(AppState.HISTORY);
     setAppState(AppState.RESULT);
   };
@@ -59,31 +87,42 @@ const App: React.FC = () => {
 
     // 1. Start Visual Transition (Fade out)
     setIsLangSwitching(true);
-    
-    const transitionDuration = 300; // Faster transition for better UX
+    const transitionDuration = 300; 
 
-    // 2. Schedule State Change (synced with fade out)
+    // 2. Schedule State Change
     setTimeout(() => {
         setLanguage(nextLang);
         
-        // If we have a cocktail and we are viewing it, we need to translate it
-        // We do NOT await this. We let it run in background and show loading state in View.
+        // Handling Translation with Cache
         if (appState === AppState.RESULT && lastCocktail) {
-            setIsTranslatingContent(true);
-            translateCocktail(lastCocktail, nextLang)
-                .then(translated => {
-                    setLastCocktail(translated);
-                    setHistory(prev => prev.map(c => c.id === translated.id ? translated : c));
-                })
-                .catch(e => {
-                    console.error("Failed to translate cocktail during switch", e);
-                })
-                .finally(() => {
-                    setIsTranslatingContent(false);
-                });
+            const cacheKey = getCacheKey(lastCocktail.id, nextLang);
+
+            if (cocktailCache.current[cacheKey]) {
+                // INSTANT SWAP: Data exists in cache
+                setLastCocktail(cocktailCache.current[cacheKey]);
+                setIsTranslatingContent(false);
+            } else {
+                // FETCH: Data not in cache
+                setIsTranslatingContent(true);
+                translateCocktail(lastCocktail, nextLang)
+                    .then(translated => {
+                        setLastCocktail(translated);
+                        // Save to cache
+                        cocktailCache.current[cacheKey] = translated;
+                        
+                        // Optional: Update history item to reflect we now have this version? 
+                        // Actually better not to mutate history excessively, cache is ephemeral enough for session.
+                    })
+                    .catch(e => {
+                        console.error("Failed to translate cocktail during switch", e);
+                    })
+                    .finally(() => {
+                        setIsTranslatingContent(false);
+                    });
+            }
         }
 
-        // 3. Fade In (delayed slightly to allow render)
+        // 3. Fade In
         setTimeout(() => {
             setIsLangSwitching(false); 
         }, 50);

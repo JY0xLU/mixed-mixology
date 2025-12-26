@@ -22,23 +22,47 @@ const cocktailSchema: Schema = {
         type: Type.OBJECT,
         properties: {
           part: { type: Type.STRING, enum: ["Base", "Top", "Middle", "Finish"] },
-          name: { type: Type.STRING, description: "Ingredient name (e.g., Aged Rum, Lemon Zest, Smoke)" },
-          reason: { type: Type.STRING, description: "Why this ingredient fits the user's text (e.g., 'For your lingering regret')" }
+          name: { type: Type.STRING, description: "ABSTRACT METAPHORICAL ingredient name (e.g., 'Liquid Courage'). DO NOT use real food/alcohol names." },
+          reason: { type: Type.STRING, description: "Why this abstract concept fits the user's emotion." }
         },
         required: ["part", "name", "reason"]
       }
+    },
+    realRecipe: {
+      type: Type.OBJECT,
+      properties: {
+        drinkName: { type: Type.STRING, description: "A real-world drink name (Cocktail/Mocktail) that matches the mood." },
+        type: { type: Type.STRING, enum: ["Cocktail", "Mocktail", "Tea", "Coffee"] },
+        ingredients: { type: Type.ARRAY, items: { type: Type.STRING }, description: "List of real ingredients with measurements." },
+        steps: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Short preparation steps." }
+      },
+      required: ["drinkName", "type", "ingredients", "steps"]
+    },
+    sonicVibe: {
+      type: Type.OBJECT,
+      properties: {
+        description: { type: Type.STRING, description: "Description of the ambient soundscape (e.g., 'Rain on a tin roof with cello')." },
+        genre: { type: Type.STRING, description: "Music genre (e.g., Lo-fi, Jazz, Ambient, Drone)." },
+        baseFrequency: { type: Type.NUMBER, description: "Base frequency in Hz for a synth drone (e.g., 60 for deep/sad, 440 for neutral, 800 for anxious/bright)." }
+      },
+      required: ["description", "genre", "baseFrequency"]
+    },
+    // New Feature: Crisis/Distress Support
+    copingTip: {
+      type: Type.STRING,
+      description: "If the input indicates high anxiety, panic, or hopelessness, provide a title of a coping technique (e.g. 'Box Breathing', 'Grounding'). If mood is normal, leave empty."
     }
   },
-  required: ["name", "description", "baseColor", "secondaryColor", "moodValue", "intensity", "sensation", "ingredients"]
+  required: ["name", "description", "baseColor", "secondaryColor", "moodValue", "intensity", "sensation", "ingredients", "realRecipe", "sonicVibe"]
 };
 
 const summarySchema: Schema = {
   type: Type.OBJECT,
   properties: {
-    summaryText: { type: Type.STRING, description: "A psychological summary of the user's emotional week/month (approx 50 words)." },
-    dominantMood: { type: Type.STRING, description: "The most recurring emotion (e.g., 'Melancholy', 'Manic', 'Peaceful')." },
-    suggestedDrinkName: { type: Type.STRING, description: "A name for a drink that summarizes this entire period." },
-    suggestedDrinkDescription: { type: Type.STRING, description: "Description of this summary drink." }
+    summaryText: { type: Type.STRING, description: "A warm, empathetic psychological summary of the user's emotional week (approx 50 words). Focus on richness of experience, not clinical diagnosis." },
+    dominantMood: { type: Type.STRING, description: "The poetic theme of the week (e.g., 'Introspective Blue', 'Radiant Gold'). Avoid clinical terms." },
+    suggestedDrinkName: { type: Type.STRING, description: "A name for a 'healing' or 'balancing' drink for this period." },
+    suggestedDrinkDescription: { type: Type.STRING, description: "Describe the drink AND explicitly explain WHY it helps balance the user's specific recent emotions (Functional Healing)." }
   },
   required: ["summaryText", "dominantMood", "suggestedDrinkName", "suggestedDrinkDescription"]
 };
@@ -53,20 +77,16 @@ export const generateCocktail = async (inputText: string, language: Language): P
 
   // Improved prompt for deeper analysis with Language instruction
   const prompt = `
-    You are an expert "Emotional Mixologist" with a background in psychology. 
-    Your goal is to analyze the user's input text to create a metaphorical cocktail.
-
-    CRITICAL INSTRUCTION: 
-    1. Do not just look at surface keywords. Analyze the SUBTEXT. 
-    2. Output text fields (name, description, sensation, ingredient name/reason) STRICTLY in ${language === 'zh' ? 'Simplified Chinese' : 'English'}.
-    3. IMPORTANT: The ingredient 'part' field MUST ALWAYS be one of: "Base", "Middle", "Top", "Finish" (Keep in English regardless of output language).
-
-    1. Analyze the sentiment (moodValue) and intensity accurately. 
-       - -1.0 is deep despair/rage. 
-       - 1.0 is pure ecstasy. 
-       - 0 is not just "neutral", it can be "numb" or "balanced".
-    2. Choose colors that match the complex emotion.
-    3. Create a recipe where every ingredient symbolizes a specific part of their psychological state.
+    You are an expert "Emotional Mixologist". Analyze the SUBTEXT of the input.
+    
+    Instruction:
+    1. Output text fields STRICTLY in ${language === 'zh' ? 'Simplified Chinese' : 'English'}.
+    2. 'part' field MUST be: "Base", "Middle", "Top", "Finish".
+    3. COLORS: Choose specific Hex Codes that perfectly match the emotion.
+    4. ABSTRACT INGREDIENTS: Use METAPHORS (e.g., "Distilled Regret").
+    5. REAL RECIPE: Provide a SAFE, ACTUAL drinkable recipe (Cocktail or Mocktail) that physically embodies the mood (e.g., Spicy for anger, Warm tea for sadness).
+    6. SONIC VIBE: Suggest a soundscape. Frequency: Low (50-150Hz) for heavy moods, Mid (200-500Hz) for calm, High (600-1000Hz) for anxiety/excitement.
+    7. RISK CHECK: If the user expresses hopelessness, panic, or severe distress, populate 'copingTip' with a suitable technique name (e.g. "4-7-8 Breathing").
     
     User Input: "${inputText}"
   `;
@@ -90,6 +110,7 @@ export const generateCocktail = async (inputText: string, language: Language): P
     return {
       id: Date.now().toString(),
       createdAt: Date.now(),
+      language: language,
       ...data
     };
 
@@ -97,8 +118,8 @@ export const generateCocktail = async (inputText: string, language: Language): P
     console.error("Gemini Generation Error:", error);
     // Fallback
     const fallbackText = language === 'zh' 
-      ? { name: "静默杂音", desc: "信号丢失，唯余空杯。", sensation: "空虚", reason: "为了那份沉默" }
-      : { name: "Static Noise", desc: "The signal was lost, but the glass remains.", sensation: "Empty", reason: "For the silence" };
+      ? { name: "静默杂音", desc: "信号丢失，唯余空杯。", sensation: "空虚", ingredient: "凝结的沉默", reason: "为了那份沉默" }
+      : { name: "Static Noise", desc: "The signal was lost, but the glass remains.", sensation: "Empty", ingredient: "Condensed Silence", reason: "For the silence" };
 
     return {
       id: Date.now().toString(),
@@ -110,9 +131,10 @@ export const generateCocktail = async (inputText: string, language: Language): P
       intensity: 0.1,
       sensation: fallbackText.sensation,
       ingredients: [
-        { part: "Base", name: "Vodka", reason: fallbackText.reason }
+        { part: "Base", name: fallbackText.ingredient, reason: fallbackText.reason }
       ],
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      language: language
     };
   }
 };
@@ -125,16 +147,18 @@ export const translateCocktail = async (cocktail: MoodCocktail, language: Langua
   const targetLangName = language === 'zh' ? 'Simplified Chinese' : 'English';
 
   const prompt = `
-    Translate the text fields of the following cocktail JSON into ${targetLangName}.
+    Translate this cocktail JSON into ${targetLangName}.
     
-    Input JSON: ${JSON.stringify(cocktail)}
+    Input: ${JSON.stringify(cocktail)}
     
-    Requirements:
+    Rules:
     1. Translate 'name', 'description', 'sensation'.
-    2. For 'ingredients', translate 'name' and 'reason'.
-    3. CRITICAL: Keep 'part' values exactly as "Base", "Middle", "Top", "Finish" (Do not translate 'part').
-    4. Keep all color codes ('baseColor', 'secondaryColor') and numerical values ('moodValue', 'intensity', 'createdAt', 'id') EXACTLY the same.
-    5. Maintain the poetic, abstract tone matching the original meaning.
+    2. Translate 'ingredients' names/reasons.
+    3. Translate 'realRecipe' fields (drinkName, ingredients, steps).
+    4. Translate 'sonicVibe' description/genre.
+    5. Translate 'copingTip' if present.
+    6. KEEP keys and strict enum values (e.g. 'Cocktail', 'Base').
+    7. PRESERVE all IDs, colors, and numbers.
   `;
 
   try {
@@ -151,11 +175,11 @@ export const translateCocktail = async (cocktail: MoodCocktail, language: Langua
     if (!text) return cocktail;
     const translated = JSON.parse(text);
     
-    // Ensure ID and CreatedAt are preserved (Gemini response schema might not strictly include them if we reuse cocktailSchema)
     return {
         ...translated,
         id: cocktail.id,
-        createdAt: cocktail.createdAt
+        createdAt: cocktail.createdAt,
+        language: language
     };
   } catch (error) {
     console.error("Translation failed", error);
@@ -178,7 +202,6 @@ export const generateHistorySummary = async (history: MoodCocktail[], language: 
 
   const ai = new GoogleGenAI({ apiKey });
 
-  // Prepare minimal data for context window efficiency
   const historyData = history.map(h => ({
     date: new Date(h.createdAt).toLocaleDateString(),
     mood: h.moodValue,
@@ -188,14 +211,16 @@ export const generateHistorySummary = async (history: MoodCocktail[], language: 
   }));
 
   const prompt = `
-    Analyze this user's emotional history of cocktails over the recent period. 
-    Identify the trend. Are they getting happier? Spiraling down? oscillating wildly? Stagnating?
-    
+    You are an empathetic therapist and poet analyzing the user's emotional journey.
     Data: ${JSON.stringify(historyData)}
     
-    Provide a psychological summary, identify the dominant mood, and suggest one "Ultimate Cocktail" that represents this entire period.
-    
-    IMPORTANT: Output all text fields STRICTLY in ${language === 'zh' ? 'Simplified Chinese' : 'English'}.
+    Reframing Rules:
+    1. NEVER use judgmental words like "volatile", "unstable", "moody", or "bad".
+    2. Reframe fluctuations as "richness", "dynamic spectrum", or "passionate".
+    3. Reframe sadness/negativity as "depth", "introspection", or "processing".
+    4. The Suggested Drink must be FUNCTIONAL: Explain WHY it heals or balances their specific week (e.g., "To ground your high energy...", "To warm your introspection...").
+
+    Output strictly in ${language === 'zh' ? 'Simplified Chinese' : 'English'}.
   `;
 
   try {

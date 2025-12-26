@@ -14,8 +14,22 @@ export interface Ingredient {
   part: 'Base' | 'Top' | 'Middle' | 'Finish';
 }
 
+export interface RealRecipe {
+  drinkName: string;
+  type: 'Cocktail' | 'Mocktail' | 'Tea' | 'Coffee';
+  ingredients: string[];
+  steps: string[];
+}
+
+export interface SonicVibe {
+  description: string; // "Lo-fi beats with rain"
+  genre: string;
+  baseFrequency: number; // Hz, for Web Audio API synthesis
+}
+
 export interface MoodCocktail {
   id: string;
+  language?: Language; // Track the language of this specific data
   name: string;
   description: string;
   baseColor: string; // Hex
@@ -24,6 +38,9 @@ export interface MoodCocktail {
   intensity: number; // 0 to 1
   sensation: string; // "Tight", "Flowing", "Heavy"
   ingredients: Ingredient[];
+  realRecipe?: RealRecipe; // New: O2O feature
+  sonicVibe?: SonicVibe;   // New: Sonic Seasoning
+  copingTip?: string;      // New: Emergency support (e.g. "4-7-8 Breathing")
   createdAt: number;
 }
 
