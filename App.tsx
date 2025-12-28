@@ -130,7 +130,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="w-screen h-screen bg-slate-950 flex items-center justify-center font-sans antialiased selection:bg-purple-500 selection:text-white">
+    <div className="w-screen h-[100dvh] bg-slate-950 flex items-center justify-center font-sans antialiased selection:bg-purple-500 selection:text-white overflow-hidden">
       {/* Mobile-first Container constrained width on desktop */}
       <div className="w-full h-full md:max-w-[480px] md:h-[90vh] md:max-h-[900px] md:rounded-[3rem] md:border-8 md:border-slate-900 md:shadow-2xl bg-[#0f172a] relative overflow-hidden flex flex-col">
         

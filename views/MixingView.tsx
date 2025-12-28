@@ -32,6 +32,7 @@ const MixingView: React.FC<MixingViewProps> = ({
   const [inputText, setInputText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   
   // Emotional Palette State
   const [moodValue, setMoodValue] = useState(0); // -1 (Sad) to 1 (Happy)
@@ -212,14 +213,6 @@ const MixingView: React.FC<MixingViewProps> = ({
     setStatusText(t.distillingStatus);
     
     try {
-      // We pass the inputText + " [Mood: X, Intensity: Y]" as context to the AI?
-      // Or we just let the AI derive it. The user wants the visual to match. 
-      // We'll append a system note to the prompt in the service if needed, but for now 
-      // the visual is the immediate feedback. The AI analyzes text. 
-      // Ideally, we should pass these values to the generator, but to keep changes minimal
-      // we just let the AI analyze the text which drove the defaults. 
-      // If manual override, we might want to append a hint string.
-      
       let finalPrompt = inputText;
       if (isManualOverride) {
         const moodDesc = moodValue > 0 ? "Positive/Bright" : "Negative/Deep";
@@ -228,9 +221,6 @@ const MixingView: React.FC<MixingViewProps> = ({
       }
 
       const cocktail = await generateCocktail(finalPrompt, language);
-      
-      // OPTIONAL: Force the result cocktail to match user's slider colors?
-      // For now, let the AI be the "Expert Mixologist" interpretation.
       
       setTimeout(() => {
         setIsProcessing(false);
@@ -252,7 +242,7 @@ const MixingView: React.FC<MixingViewProps> = ({
     <div className="flex flex-col h-full w-full relative overflow-hidden bg-slate-950">
       
       {/* View Specific Header */}
-      <div className="absolute top-0 left-0 right-0 p-6 z-30 flex justify-between items-start pointer-events-none">
+      <div className="absolute top-0 left-0 right-0 p-6 z-30 flex justify-between items-start pointer-events-none pt-safe">
         <div></div>
         <div className="flex gap-3 pointer-events-auto">
           <button 
@@ -274,7 +264,12 @@ const MixingView: React.FC<MixingViewProps> = ({
       </div>
 
       {/* (A) Glass Visualizer - Responds to Sliders */}
-      <div className="flex-grow relative z-10 flex flex-col items-center justify-center p-4 min-h-[35%] transition-all duration-500">
+      {/* Smart Layout: Shrink glass area when keyboard is open (isInputFocused) */}
+      <div 
+        className={`relative z-10 flex flex-col items-center justify-center p-4 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+            isInputFocused ? 'flex-[0_0_120px] opacity-40' : 'flex-1 min-h-[30%]'
+        }`}
+      >
         <FluidGlass 
           moodValue={moodValue} 
           intensity={intensityValue} 
@@ -282,18 +277,21 @@ const MixingView: React.FC<MixingViewProps> = ({
         />
         
         {/* Helper status text floating near glass */}
-        <div className="absolute bottom-4 text-center">
-            <span className={`text-xs text-slate-400 font-medium tracking-widest uppercase transition-opacity duration-300 ${isListening ? 'animate-pulse text-purple-400' : ''}`}>
-                {statusText}
-            </span>
-        </div>
+        {!isInputFocused && (
+            <div className="absolute bottom-4 text-center">
+                <span className={`text-xs text-slate-400 font-medium tracking-widest uppercase transition-opacity duration-300 ${isListening ? 'animate-pulse text-purple-400' : ''}`}>
+                    {statusText}
+                </span>
+            </div>
+        )}
       </div>
 
       {/* Control Area */}
-      <div className="w-full bg-slate-900/80 backdrop-blur-xl rounded-t-[2.5rem] border-t border-white/10 p-6 flex flex-col items-center z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] transition-all">
+      <div className="w-full bg-slate-900/80 backdrop-blur-xl rounded-t-[2.5rem] border-t border-white/10 p-6 flex flex-col items-center z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] transition-all shrink-0 pb-safe">
         
         {/* (B) Emotional Palette (Sliders) */}
-        <div className="w-full max-w-sm mb-6 space-y-5">
+        {/* Hide sliders on very small screens or when focused to save space if needed, but keeping them usually fine */}
+        <div className={`w-full max-w-sm mb-6 space-y-5 transition-all duration-300 ${isInputFocused ? 'hidden md:block' : 'block'}`}>
             {/* Mood Slider */}
             <div className="space-y-2">
                 <div className="flex justify-between text-[10px] text-slate-500 font-bold uppercase tracking-wider">
@@ -306,7 +304,7 @@ const MixingView: React.FC<MixingViewProps> = ({
                     min="-1" max="1" step="0.1"
                     value={moodValue}
                     onChange={(e) => handleSliderChange('mood', parseFloat(e.target.value))}
-                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500 touch-none"
                     style={{
                         backgroundImage: `linear-gradient(to right, #4338ca, #64748b, #fbbf24)`
                     }}
@@ -325,7 +323,7 @@ const MixingView: React.FC<MixingViewProps> = ({
                     min="0" max="1" step="0.1"
                     value={intensityValue}
                     onChange={(e) => handleSliderChange('intensity', parseFloat(e.target.value))}
-                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-pink-500"
+                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-pink-500 touch-none"
                 />
             </div>
         </div>
@@ -335,9 +333,11 @@ const MixingView: React.FC<MixingViewProps> = ({
             <div className="relative">
                 <textarea
                     className="w-full bg-slate-800/50 text-white pl-4 pr-12 py-4 rounded-2xl border border-white/10 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none resize-none transition-all placeholder:text-slate-600 text-sm font-sans leading-relaxed shadow-inner"
-                    rows={2}
+                    rows={isInputFocused ? 3 : 2}
                     placeholder={t.placeholder}
                     value={inputText}
+                    onFocus={() => setIsInputFocused(true)}
+                    onBlur={() => setIsInputFocused(false)}
                     onChange={(e) => {
                         setInputText(e.target.value);
                         if (e.target.value === '') setIsManualOverride(false); // Reset manual override if cleared
@@ -385,7 +385,7 @@ const MixingView: React.FC<MixingViewProps> = ({
           onClick={handleStartMixing}
           disabled={isProcessing || (inputText.length < 1 && moodValue === 0)}
           className={`
-            w-full max-w-sm py-4 rounded-full font-serif text-lg tracking-wide font-semibold shadow-lg transition-all transform hover:scale-[1.02] active:scale-95
+            w-full max-w-sm py-4 rounded-full font-serif text-lg tracking-wide font-semibold shadow-lg transition-all transform active:scale-95 mb-safe
             ${isProcessing || (inputText.length < 1 && moodValue === 0)
               ? 'bg-slate-800 text-slate-600 cursor-not-allowed border border-white/5' 
               : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:shadow-purple-500/30 border border-white/10'}

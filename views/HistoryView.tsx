@@ -1,7 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { AppState, MoodCocktail, PeriodSummary, Language } from '../types';
 import { generateHistorySummary } from '../services/geminiService';
 import { getTranslation } from '../utils/translations';
+import MoodBottle from '../components/MoodBottle';
+import { playGlassClink } from '../utils/audioEffects';
 
 interface HistoryViewProps {
   history: MoodCocktail[];
@@ -16,9 +18,13 @@ type ViewMode = 'list' | 'calendar' | 'shelf';
 const HistoryView: React.FC<HistoryViewProps> = ({ history, setAppState, onSelect, language, toggleLanguage }) => {
   const t = getTranslation(language);
   const [activeTab, setActiveTab] = useState<'menu' | 'insights'>('menu');
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [viewMode, setViewMode] = useState<ViewMode>('shelf'); // Default to shelf now
   const [summary, setSummary] = useState<PeriodSummary | null>(null);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  
+  // Interaction State
+  const [longPressId, setLongPressId] = useState<string | null>(null);
+  const pressTimer = useRef<any>(null);
 
   // Clear summary when language changes
   useEffect(() => {
@@ -70,8 +76,25 @@ const HistoryView: React.FC<HistoryViewProps> = ({ history, setAppState, onSelec
     return days;
   }, [history]);
 
+  // --- Long Press Logic ---
+  const handleTouchStart = (id: string) => {
+      pressTimer.current = setTimeout(() => {
+          setLongPressId(id);
+          playGlassClink(); // Play sound!
+          // Auto clear after 2 seconds
+          setTimeout(() => setLongPressId(null), 2000);
+      }, 500); // 500ms to trigger long press
+  };
+
+  const handleTouchEnd = () => {
+      if (pressTimer.current) {
+          clearTimeout(pressTimer.current);
+          pressTimer.current = null;
+      }
+  };
+
   return (
-    <div className="flex flex-col h-full w-full bg-slate-900 text-white">
+    <div className="flex flex-col h-full w-full bg-slate-900 text-white select-none">
       {/* Header */}
       <div className="pt-6 px-6 pb-2 flex items-center justify-between">
         <h2 className="font-serif text-2xl">{t.journeyTitle}</h2>
@@ -112,6 +135,15 @@ const HistoryView: React.FC<HistoryViewProps> = ({ history, setAppState, onSelec
         {activeTab === 'menu' && (
             <div className="flex bg-slate-800 rounded-lg p-0.5 mb-2">
                 <button 
+                    onClick={() => setViewMode('shelf')}
+                    className={`p-1.5 rounded-md transition-all ${viewMode === 'shelf' ? 'bg-slate-600 text-white' : 'text-slate-400'}`}
+                    title={t.viewShelf}
+                >
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                       <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776" />
+                     </svg>
+                </button>
+                <button 
                     onClick={() => setViewMode('list')} 
                     className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-slate-600 text-white' : 'text-slate-400'}`}
                     title={t.viewList}
@@ -129,15 +161,6 @@ const HistoryView: React.FC<HistoryViewProps> = ({ history, setAppState, onSelec
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                     </svg>
                 </button>
-                <button 
-                    onClick={() => setViewMode('shelf')}
-                    className={`p-1.5 rounded-md transition-all ${viewMode === 'shelf' ? 'bg-slate-600 text-white' : 'text-slate-400'}`}
-                    title={t.viewShelf}
-                >
-                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                       <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776" />
-                     </svg>
-                </button>
             </div>
         )}
       </div>
@@ -152,6 +175,51 @@ const HistoryView: React.FC<HistoryViewProps> = ({ history, setAppState, onSelec
               </div>
             ) : (
                <>
+                 {viewMode === 'shelf' && (
+                    <div className="flex flex-wrap gap-x-2 gap-y-8 justify-start items-end p-2 pb-10">
+                        {/* Render items on "Shelves" */}
+                        {history.map((item) => (
+                            <div 
+                                key={item.id} 
+                                className="relative w-[30%] sm:w-[22%] aspect-[3/5] flex flex-col items-center justify-end group"
+                                onTouchStart={() => handleTouchStart(item.id)}
+                                onTouchEnd={handleTouchEnd}
+                                onMouseDown={() => handleTouchStart(item.id)} // For desktop testing
+                                onMouseUp={handleTouchEnd}
+                                onMouseLeave={handleTouchEnd}
+                                onContextMenu={(e) => e.preventDefault()} // Prevent right click
+                                onClick={() => {
+                                    if (!longPressId) onSelect(item);
+                                }}
+                            >
+                                {/* Floating Label on Long Press */}
+                                {longPressId === item.id && (
+                                    <div className="absolute -top-12 z-20 bg-slate-800 text-white px-3 py-1.5 rounded-lg border border-purple-500/30 text-xs shadow-xl animate-bounce flex flex-col items-center whitespace-nowrap">
+                                        <span className="font-bold text-[10px] text-slate-400">
+                                            {new Date(item.createdAt).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US', { month: 'short', day: 'numeric' })}
+                                        </span>
+                                        <span className="font-serif italic">{item.name}</span>
+                                        <div className="absolute -bottom-1 w-2 h-2 bg-slate-800 rotate-45 border-r border-b border-purple-500/30"></div>
+                                    </div>
+                                )}
+
+                                {/* The Bottle Component */}
+                                <div className={`w-full h-full p-1 transition-transform duration-200 ${longPressId === item.id ? 'scale-110' : 'group-hover:scale-105'}`}>
+                                    <MoodBottle 
+                                        moodValue={item.moodValue}
+                                        baseColor={item.baseColor}
+                                        secondaryColor={item.secondaryColor}
+                                        intensity={item.intensity}
+                                    />
+                                </div>
+
+                                {/* Shelf Base Line */}
+                                <div className="absolute -bottom-2 w-full h-[2px] bg-white/10 rounded-full shadow-[0_2px_4px_rgba(0,0,0,0.5)]"></div>
+                            </div>
+                        ))}
+                    </div>
+                 )}
+
                  {viewMode === 'list' && (
                     <div className="space-y-3">
                          {history.map((item) => (
@@ -206,31 +274,11 @@ const HistoryView: React.FC<HistoryViewProps> = ({ history, setAppState, onSelec
                          ))}
                      </div>
                  )}
-
-                 {viewMode === 'shelf' && (
-                    <div className="grid grid-cols-3 gap-4 p-2">
-                        {history.map((item) => (
-                            <div key={item.id} onClick={() => onSelect(item)} className="flex flex-col items-center cursor-pointer group">
-                                <div className="relative w-full aspect-[2/3] bg-slate-800/30 rounded-t-full rounded-b-lg border border-white/5 flex items-end justify-center overflow-hidden hover:border-white/20 transition-all p-2">
-                                    {/* Stylized Bottle Fill */}
-                                    <div 
-                                        className="w-full rounded-t-full rounded-b-md opacity-80 group-hover:opacity-100 transition-opacity"
-                                        style={{ 
-                                            height: `${40 + (item.intensity * 50)}%`,
-                                            background: `linear-gradient(to top, ${item.baseColor}, ${item.secondaryColor})` 
-                                        }}
-                                    />
-                                </div>
-                                <span className="text-[10px] text-center mt-2 text-slate-400 group-hover:text-white truncate w-full">{item.name}</span>
-                            </div>
-                        ))}
-                    </div>
-                 )}
                </>
             )}
           </div>
         ) : (
-          // --- INSIGHTS TAB (Same as before) ---
+          // --- INSIGHTS TAB ---
           <div className="p-6 space-y-8">
             <div className="bg-slate-800/40 rounded-2xl p-4 border border-white/5">
               <h3 className="text-xs uppercase tracking-widest text-slate-400 mb-4">{t.waveTitle}</h3>

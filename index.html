@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Mood Mixology</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -28,6 +28,8 @@
         color: #e2e8f0;
         overflow-x: hidden;
         font-family: "Inter", "Noto Sans SC", sans-serif;
+        /* Prevent bounce scroll on iOS */
+        overscroll-behavior-y: none;
       }
       /* Ensure form elements inherit font family */
       input, textarea, button, select {
@@ -43,6 +45,13 @@
       ::-webkit-scrollbar-thumb {
         background: #334155; 
         border-radius: 3px;
+      }
+      /* Safe area utilities */
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top);
       }
     </style>
   <script type="importmap">

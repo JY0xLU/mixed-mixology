@@ -52,7 +52,7 @@ const ResultView: React.FC<ResultViewProps> = ({ cocktail, setAppState, language
   if (!cocktail) return <div className="text-white">{t.noDrink}</div>;
 
   return (
-    <div className="flex flex-col h-full w-full overflow-y-auto bg-slate-900 pb-10 relative">
+    <div className="flex flex-col h-full w-full overflow-y-auto bg-slate-900 pb-safe relative">
       
       {/* --- Overlays --- */}
       {showBreathing && (
@@ -72,7 +72,7 @@ const ResultView: React.FC<ResultViewProps> = ({ cocktail, setAppState, language
       )}
 
       {/* Header / Navigation */}
-      <div className="w-full p-4 flex justify-between items-center z-20 sticky top-0 bg-slate-900/80 backdrop-blur-sm">
+      <div className="w-full p-4 flex justify-between items-center z-20 sticky top-0 bg-slate-900/80 backdrop-blur-sm pt-safe">
         <div className="flex items-center">
             <button onClick={onBack} className="text-slate-400 hover:text-white transition-colors p-2 -ml-2">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -81,7 +81,7 @@ const ResultView: React.FC<ResultViewProps> = ({ cocktail, setAppState, language
             </button>
         </div>
         
-        <span className="text-xs uppercase tracking-[0.2em] text-slate-500 absolute left-1/2 transform -translate-x-1/2">{t.signatureBlend}</span>
+        <span className="text-xs uppercase tracking-[0.2em] text-slate-500 absolute left-1/2 transform -translate-x-1/2 pt-safe">{t.signatureBlend}</span>
         
         <div className="flex gap-2">
             {/* Share Button (Top Right) */}
@@ -282,7 +282,7 @@ const ResultView: React.FC<ResultViewProps> = ({ cocktail, setAppState, language
         </button>
         <button 
           onClick={() => setAppState(AppState.IDLE)}
-          className="w-full py-3 bg-gradient-to-r from-purple-700 to-indigo-700 rounded-xl text-sm font-semibold shadow-lg shadow-purple-900/20 hover:shadow-purple-900/40 transition-all"
+          className="w-full py-3 bg-gradient-to-r from-purple-700 to-indigo-700 rounded-xl text-sm font-semibold shadow-lg shadow-purple-900/20 hover:shadow-purple-900/40 transition-all mb-safe"
         >
           {t.mixAnother}
         </button>
