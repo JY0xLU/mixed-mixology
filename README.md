@@ -1,24 +1,65 @@
-Mixed Mixology 🍸"Decode your mood into a glass of digital cocktail."Mixed Mixology 是一款将人类抽象情绪（Emotions）转化为具象数字饮品（Digital Drinks）的实验性应用。通过独创的 Bartender Protocol，我们将用户复杂的心境通过色彩理论、物理粘度及配料逻辑进行重构，为每一天的心情提供一份可感知的“调酒配方”。🚀 项目核心分析 (Core Analysis)1. Bartender Protocol (调酒协议)这是项目的灵魂。它不仅仅是一套 JSON 格式，而是一套情绪映射算法。色度映射 (Chromotherapy)：根据情绪的强度和类型，自动计算 RGB/HEX 色值。物理模拟 (Physics Simulation)：通过 viscosity（粘度）反映情绪的沉重感，通过 carbonation（气泡感）反映情绪的活跃度。元素叠加 (Layering)：Base（基酒/主导情绪）+ Garnish（装饰/细微心境）。2. 流体视觉体验 (Fluid Visualization)利用现代图形渲染技术（Canvas/Shaders），让生成的饮品在屏幕上“活起来”。交互式反馈：随着手机重力感应或触摸，液体产生真实的波动效果。动态环境：深色调背景，模拟赛博朋克风格的私人酒馆。3. 情绪酒窖 (Memory Cellar)打破传统的列表式记录，采用“酒架”或“日历”视角。回溯：用户可以像查看收藏的佳酿一样，回溯某一段时期的情绪演变。数据洞察：分析本月最常出现的“口味”，生成年度情绪报告。✨ 核心特性[x] Bartender Protocol v1.0: 实现情绪到 8 个维度数据的精准转换。[x] Fluid Animation: 基于着色器的高性能流体模拟。[x] Dark Tavern UI: 沉浸式深色模式交互界面。[ ] AI Infused Copywriting: 根据配方自动生成充满文学感的调酒短语（开发中）。[ ] NFC Share: 碰一碰，分享你此刻的“这杯酒”（计划中）。🛠️ 技术架构Logic Engine: TypeScript / JavaScript (基于 Bartender Protocol)UI Framework: [请根据实际填写，如 React Native / Flutter / Vue]Graphics: GLSL / Canvas (用于液体渲染)Data Persistence: [如 SQLite / Firebase]🧪 协议解析示例 (Bartender Protocol Sample)每一杯“情绪特调”都由以下标准协议生成：{
-  "id": "cocktail_20241229_001",
-  "mood_input": {
-    "intensity": 0.85,
-    "valence": -0.4,
-    "tags": ["nostalgic", "calm"]
-  },
-  "drink_recipe": {
-    "liquid": {
-      "primary_color": "#2C3E50",
-      "viscosity": 0.7,
-      "carbonation": 0.1,
-      "opacity": 0.9
-    },
-    "garnish": "Dried Lemon Slice",
-    "glassware": "Old Fashioned",
-    "description": "A heavy, quiet blend for late-night reflections."
-  }
-}
-🎨 视觉展示 (Screenshots)请在此处插入你的 App 截图或流体动画 GIF情绪选择界面调酒生成动画个人酒窖📦 开发者指南环境准备git clone [https://github.com/JY0xLU/mixed-mixology.git](https://github.com/JY0xLU/mixed-mixology.git)
-cd mixed-mixology
-npm install
-运行npm run start
-📄 开源协议本项目基于 MIT License 开源。📬 联系与交流Author: JY0xLUProject Link: https://github.com/JY0xLU/mixed-mixology"Life is a mixture of flavors, let's mix it right."
+# 🍸 情绪调酒师 (Mood Mixology)
+> **“把你的心事化作一杯特调。”** —— 这是一款基于 AI 驱动的情绪具象化实验应用。
+
+[![Status](https://img.shields.io/badge/Status-Developing-orange?style=flat-square)]()
+[![Tech](https://img.shields.io/badge/Powered%20by-AI%20%7C%20AIGC-blueviolet?style=flat-square)]()
+[![Design](https://img.shields.io/badge/Design-Aesthetic-ff69b4?style=flat-square)]()
+
+---
+
+## 🌟 项目愿景 (Vision)
+
+在快节奏的数字时代，情绪往往是抽象且难以言说的。**情绪调酒师** 旨在通过 AI 技术，将用户细腻、复杂的内心世界转化为一杯杯拥有色彩、口感、香气和故事的“虚拟特调”，让情绪被看见、被治愈、被珍藏。
+
+---
+
+## 🚀 核心功能 (Core Features)
+
+### 1. 🎭 深度情绪解构 (Mood Analysis)
+* **语义识别：** 支持长文本心情日记或短句输入，精准捕捉微妙的情感波动。
+* **多维建模：** AI 将情绪拆解为：浓度、苦涩度、清新感、基调色彩等参数。
+
+### 2. 🍹 AI 创意调酒 (AI Mixology)
+* **配方生成：** 根据情绪自动创作独一无二的配方（如：*“深夜的寂寞” = 威士忌基底 + 冰裂纹 + 一抹薰衣草紫*）。
+* **酒名叙事：** 为每一杯酒赋予极具文学感的命名与文案描述。
+
+### 3. 🖼️ AIGC 视觉呈现 (Visual Experience)
+* **精美卡片：** 自动生成高美感的特调饮品插画，支持一键保存为壁纸或分享至社交媒体。
+* **交互仪式感：** 模拟调酒过程中的震动反馈与冰块碰撞声，增强沉浸感。
+
+### 4. 📂 情绪酒柜 (Mood Cellar)
+* **情感日历：** 记录每一天的情绪特调，回顾心理成长的曲线。
+* **共鸣空间：** （规划中）匿名分享你的当日特调，看世界上是否有和你品尝相同心情的人。
+
+---
+
+## 🛠️ 技术架构 (Technical Stack)
+
+| 模块 | 技术实现 |
+| :--- | :--- |
+| **逻辑引擎** | LLM (JSON 结构化输出) |
+| **图像生成** | Stable Diffusion / Midjourney API |
+| **前端交互** | Flutter / React Native (极致的触感反馈) |
+| **数据持久化** | 结构化存储用户的情绪轨迹 |
+
+---
+
+## 🎨 设计哲学 (Design Philosophy)
+
+* **极简主义：** 界面留白处理，突出“酒”本身的视觉冲击力。
+* **通感设计：** 通过文字、色彩、声音的组合，打破屏幕的界限，引发用户的味觉与嗅觉通感。
+
+---
+
+## 📅 开发路线图 (Roadmap)
+
+- [x] 核心 AI 调酒算法逻辑实现
+- [x] 饮品视觉卡片生成系统
+- [ ] **Next:** 语音输入特调模式
+- [ ] **Next:** 离线“私人酒柜”功能优化
+- [ ] **Future:** 联动实体调酒配方建议
+
+---
+
+> **项目寄语：**
+> 无论今天的你是微醺还是宿醉，这里总有一杯懂你的酒。
