@@ -1,5 +1,4 @@
 
-https://github.com/user-attachments/assets/4637f3aa-2d58-4d4f-94fb-228c534b8399
 # 🍸 情绪调酒师 (Mood Mixology)
 > **“把你的心事化作一杯特调。”** —— 这是一款将 AI 情感分析与通感设计完美融合的治愈系应用。
 
@@ -35,13 +34,11 @@ https://github.com/user-attachments/assets/4637f3aa-2d58-4d4f-94fb-228c534b8399
 ---
 ## 📺 项目演示 (Demo)
 
-<video src="
-
-https://github.com/user-attachments/assets/c7021a9b-b68b-4c4a-8172-45551c8e18df
-
-" controls="controls" width="100%" height="auto">
-  
-</video>
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/4637f3aa-2d58-4d4f-94fb-228c534b8399" controls="controls" width="100%" height="auto">
+    您的浏览器不支持播放该视频。
+  </video>
+</div>
 
 ## 🛠️ 技术实现 (Tech Stack)
 
