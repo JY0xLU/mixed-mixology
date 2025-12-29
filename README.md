@@ -44,7 +44,7 @@
 
 本项目采用 **[MIT License](LICENSE)** 开源协议。
 
-Copyright (c) 2025 YourName
+Copyright (c) 2025 JY0xLU
 
 特此授权，任何获得副本的人可以自由处理本软件，包括但不限于使用、复制、修改、合并、出版、分发、再授权和/或销售。
 
