@@ -31,6 +31,15 @@
 * **洞察与趋势：** 自动生成**周度心语**，多维度分析近期情绪波动。
 
 ---
+## 📺 项目演示 (Demo)
+
+<video src="
+
+Uploading redpandacompress_Generic PnP Monitor 2025-12-26 214413.mp4…
+
+" controls="controls" width="100%" height="auto">
+  您的浏览器不支持播放该视频。
+</video>
 
 ## 🛠️ 技术实现 (Tech Stack)
 
