@@ -7,7 +7,14 @@
 [![Tech](https://img.shields.io/badge/Tech-Flutter%20%7C%20AI-blueviolet?style=flat-square)]()
 
 ---
+## 📲 即刻体验 (Download)
 
+为了让你能亲手调制一杯“情绪特调”，你可以下载安卓预览版 APK：
+
+[<img src="https://img.shields.io/badge/Download-APK-green?style=for-the-badge&logo=android" />](你的APK下载链接)
+
+> **注：** 由于是 Beta 版本，安装时如果遇到系统拦截，请选择“仍要安装”
+> 
 ## ✨ 为什么是“情绪调酒”？
 
 在快节奏的生活中，我们的情绪往往是一团乱麻。本项目通过 AI 深度解析用户输入的文字或语音，将其转化为一杯杯具有色彩、层次和味道的虚拟饮品，帮助用户实现**情绪自愈**。
