@@ -1,3 +1,5 @@
+
+https://github.com/user-attachments/assets/4637f3aa-2d58-4d4f-94fb-228c534b8399
 # 🍸 情绪调酒师 (Mood Mixology)
 > **“把你的心事化作一杯特调。”** —— 这是一款将 AI 情感分析与通感设计完美融合的治愈系应用。
 
@@ -35,10 +37,10 @@
 
 <video src="
 
-Uploading redpandacompress_Generic PnP Monitor 2025-12-26 214413.mp4…
+https://github.com/user-attachments/assets/c7021a9b-b68b-4c4a-8172-45551c8e18df
 
 " controls="controls" width="100%" height="auto">
-  您的浏览器不支持播放该视频。
+  
 </video>
 
 ## 🛠️ 技术实现 (Tech Stack)
@@ -60,3 +62,10 @@ Copyright (c) 2025 JY0xLU
 ---
 
 > **项目寄语：** 无论此刻你是微醺还是宿醉，希望这杯酒能让你与自己握手言和。
+
+
+
+
+
+
+
