@@ -11,7 +11,7 @@
 
 为了让你能亲手调制一杯“情绪特调”，你可以下载安卓预览版 APK：
 
-[<img src="https://img.shields.io/badge/Download-APK-green?style=for-the-badge&logo=android" />](你的APK下载链接)
+[<img src="https://img.shields.io/badge/Download-APK-green?style=for-the-badge&logo=android" />](https://github.com/JY0xLU/mixed-mixology/releases/download/v1.0.0/mixed-mixology-main.apk)
 
 > **注：** 由于是 Beta 版本，安装时如果遇到系统拦截，请选择“仍要安装”
 > 
